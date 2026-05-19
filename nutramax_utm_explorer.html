@@ -173,6 +173,9 @@ body {
 }
 .filter-option:hover { background: var(--surface-2); }
 .filter-option.active { background: var(--accent-light); }
+.filter-option.disabled { opacity: 0.4; }
+.filter-option.disabled .filter-label { color: var(--text-3); }
+.filter-option.disabled .filter-count-badge { background: transparent; }
 
 .filter-check {
   width: 15px; height: 15px;
@@ -774,13 +777,12 @@ input[type=text]::placeholder { color: var(--text-3); }
 // DATA
 // ═══════════════════════════════════════
 const DATA = [
-const DATA = [
   // HOMEPAGES
   {product:"Cosequin Homepage",brand:"Cosequin",animal:"General",category:"General",pageType:"Homepage",url:"https://www.cosequin.com"},
   {product:"Proviable Homepage",brand:"Proviable",animal:"General",category:"General",pageType:"Homepage",url:"https://www.proviable.com"},
   {product:"Dasuquin Homepage",brand:"Dasuquin",animal:"General",category:"General",pageType:"Homepage",url:"https://www.dasuquin.com"},
   // CATEGORY PAGES
-  {product:"Champion Campaign",brand:"Cosequin",animal:"Dogs, Cats, Horses",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/champions-trust"},
+  {product:"Champion Campaign",brand:"Cosequin",animal:"General",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/champions-trust"},
   {product:"Cosequin Dogs Main Page",brand:"Cosequin",animal:"Dogs",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/joint-supplements/?tags=dog"},
   {product:"Cosequin Cats Main Page",brand:"Cosequin",animal:"Cats",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/joint-supplements/?tags=cat"},
   {product:"Cosequin Horses Main Page",brand:"Cosequin",animal:"Horses",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/joint-supplements/?tags=horse"},
@@ -873,12 +875,47 @@ function buildFilters(){
 function buildFG(id,field,vals){
   const el=document.getElementById(id); el.innerHTML='';
   vals.forEach(val=>{
-    const cnt=DATA.filter(r=>r[field]===val||(field==='animal'&&r.animal.includes(val))).length;
     const d=document.createElement('div');
     d.className='filter-option'; d.dataset.field=field; d.dataset.val=val;
     d.onclick=()=>toggleFilter(field,val,d);
-    d.innerHTML=`<div class="filter-check"><svg width="9" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="filter-label">${val}</span><span class="filter-count-badge">${cnt}</span>`;
+    d.innerHTML=`<div class="filter-check"><svg width="9" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="filter-label">${val}</span><span class="filter-count-badge" data-field="${field}" data-val="${val}">0</span>`;
     el.appendChild(d);
+  });
+}
+
+// Faceted count: how many rows match value `val` in field `field`,
+// given all OTHER active filter groups (ignoring `field` itself).
+// This lets a user see what their result count would become if they
+// switched/added a value within that group.
+function matchesField(r,field,val){
+  if(field==='animal') return r.animal.includes(val);
+  return r[field]===val;
+}
+
+function recountFilters(){
+  document.querySelectorAll('.filter-count-badge').forEach(badge=>{
+    const field=badge.dataset.field;
+    const val=badge.dataset.val;
+    if(!field) return;
+    const cnt=DATA.filter(r=>{
+      for(const f of Object.keys(activeFilters)){
+        if(f===field) continue;
+        const set=activeFilters[f];
+        if(!set.size) continue;
+        if(f==='animal'){
+          if(![...set].some(a=>r.animal.includes(a))) return false;
+        } else {
+          if(!set.has(r[f])) return false;
+        }
+      }
+      return matchesField(r,field,val);
+    }).length;
+    badge.textContent=cnt;
+    const opt=badge.closest('.filter-option');
+    if(opt){
+      const isActive=opt.classList.contains('active');
+      opt.classList.toggle('disabled', cnt===0 && !isActive);
+    }
   });
 }
 
@@ -901,6 +938,7 @@ function applyFilters(){
   document.getElementById('count').textContent=filteredData.length;
   const has=[...Object.values(activeFilters)].some(s=>s.size>0);
   document.getElementById('clear-btn').classList.toggle('visible',has);
+  recountFilters();
 }
 
 function renderTable(){

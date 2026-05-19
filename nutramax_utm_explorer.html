@@ -657,9 +657,8 @@ input[type=text]::placeholder { color: var(--text-3); }
         <div class="param-live" id="pv-medium">not set</div>
       </div>
       <div class="chip-row">
-        <div class="chip" onclick="pickMedium(this,'Paid_Social')"><span class="chip-ck">✓</span>Paid_Social</div>
+        <div class="chip" onclick="pickMedium(this,'paid_social')"><span class="chip-ck">✓</span>paid_social</div>
         <div class="chip" onclick="pickMedium(this,'influencer')"><span class="chip-ck">✓</span>influencer</div>
-        <div class="chip" onclick="pickMedium(this,'Paid_Influencer')"><span class="chip-ck">✓</span>Paid_Influencer</div>
         <div class="chip" onclick="pickMedium(this,'__c')"><span class="chip-ck">✓</span>+ Custom</div>
       </div>
       <div class="inline-input-wrap" id="medium-custom-wrap">
@@ -676,10 +675,12 @@ input[type=text]::placeholder { color: var(--text-3); }
       </div>
       <div class="sub-section-label">Campaign name</div>
       <div class="chip-row">
-        <div class="chip" onclick="pickCampaignName(this,'Champion')"><span class="chip-ck">✓</span>Champion</div>
-        <div class="chip" onclick="pickCampaignName(this,'Vets')"><span class="chip-ck">✓</span>Vets</div>
-        <div class="chip" onclick="pickCampaignName(this,'ProviableLunch')"><span class="chip-ck">✓</span>ProviableLunch</div>
-        <div class="chip" onclick="pickCampaignName(this,'6WeeksChallenge')"><span class="chip-ck">✓</span>6WeeksChallenge</div>
+        <div class="chip" onclick="pickCampaignName(this,'champion')"><span class="chip-ck">✓</span>champion</div>
+        <div class="chip" onclick="pickCampaignName(this,'vets')"><span class="chip-ck">✓</span>vets</div>
+        <div class="chip" onclick="pickCampaignName(this,'proviablelunch')"><span class="chip-ck">✓</span>proviablelunch</div>
+        <div class="chip" onclick="pickCampaignName(this,'6weekschallenge')"><span class="chip-ck">✓</span>6weekschallenge</div>
+        <div class="chip" onclick="pickCampaignName(this,'cattidbits')"><span class="chip-ck">✓</span>cattidbits</div>
+        <div class="chip" onclick="pickCampaignName(this,'filaquin')"><span class="chip-ck">✓</span>filaquin</div>
         <div class="chip" onclick="pickCampaignName(this,'__c')"><span class="chip-ck">✓</span>+ Custom</div>
       </div>
       <div class="inline-input-wrap" id="cname-custom-wrap">
@@ -1199,20 +1200,17 @@ function pickMedium(el,val){
 function onMediumChange(){
   const med=getMedium();
   updatePV('pv-medium',med);
-  const isPaid=med==='Paid_Social'||med==='Paid_Influencer';
+  const isPaid=med==='paid_social';
   document.getElementById('funnel-section').style.display=isPaid?'block':'none';
   updateCTChips();updateHookChips();
   buildContent();buildCampaign();
 }
 
 function updateCTChips(){
-  const med=getMedium();
-  const isInfluencer=med==='influencer';
-  const isPaidInf=med==='Paid_Influencer';
   const ctc=document.getElementById('ct-chips'); ctc.innerHTML='';
-  const types=isInfluencer?['Influencer']:['UGC','Broll','Mashup','Influencer'];
+  const types=['ugc','broll','mashup','blinkads'];
   types.forEach(t=>{
-    const d=document.createElement('div');d.className='chip'+(isInfluencer&&t==='Influencer'?' sel':'');
+    const d=document.createElement('div');d.className='chip';
     d.innerHTML=`<span class="chip-ck">✓</span>${t}`;
     d.onclick=()=>{ctc.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));d.classList.add('sel');B.contentType=t;buildContent();};
     ctc.appendChild(d);
@@ -1220,19 +1218,16 @@ function updateCTChips(){
   const cc=document.createElement('div');cc.className='chip';cc.innerHTML=`<span class="chip-ck">✓</span>+ Custom`;
   cc.onclick=()=>{ctc.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));cc.classList.add('sel');document.getElementById('contentType-cv').style.display='block';B.contentType=null;};
   ctc.appendChild(cc);
-  if(isInfluencer)B.contentType='Influencer';
-  else B.contentType=null;
+  B.contentType=null;
   document.getElementById('contentType-cv').style.display='none';
 }
 
 function updateHookChips(){
   const med=getMedium();
-  const isPaid=med==='Paid_Social'||med==='Paid_Influencer';
-  const isPaidInf=med==='Paid_Influencer';
+  const isPaid=med==='paid_social';
   const hc=document.getElementById('hook-chips'); hc.innerHTML='';
   const hooks=['Hook1','Hook2','Hook3'];
   if(!isPaid){hooks.push('Bio','Story');}
-  if(isPaidInf){hooks.push('Spark');}
   B.hooks=[];
   hooks.forEach(h=>{
     const d=document.createElement('div');d.className='chip multi';
@@ -1280,7 +1275,7 @@ function buildCampaign(){
   if(document.getElementById('cname-custom-wrap').classList.contains('show'))
     B.campaignName=document.getElementById('cname-custom-val').value.trim()||null;
   const med=getMedium()||'';
-  const isPaid=med==='Paid_Social'||med==='Paid_Influencer';
+  const isPaid=med==='paid_social';
   let v=B.campaignName||'';
   if(isPaid&&B.campaignFunnel&&B.campaignObj)v+=`_${B.campaignFunnel}_${B.campaignObj}`;
   updatePV('pv-campaign',v||null);B.campaign=v||null;
@@ -1359,7 +1354,7 @@ function step2Next(){
     valid=false;
   } else {
     // If paid, also need funnel + objective
-    const isPaid=med==='Paid_Social'||med==='Paid_Influencer';
+    const isPaid=med==='paid_social';
     if(isPaid&&!B.campaignFunnel){
       showErr('err-campaign','Please select a funnel stage.');
       valid=false;

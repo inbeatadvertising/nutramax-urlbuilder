@@ -31,6 +31,8 @@
   --radius-sm: 6px;
   --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.09);
+  --header-h: 49px;
+  --toolbar-h: 41px;
 }
 
 body {
@@ -52,6 +54,7 @@ body {
   top: 0;
   z-index: 100;
   box-shadow: var(--shadow);
+  height: var(--header-h);
 }
 
 .app-logo {
@@ -60,9 +63,9 @@ body {
   color: var(--text);
   letter-spacing: -0.02em;
   white-space: nowrap;
-  padding: 1rem 0;
   border-right: 1px solid var(--border);
   padding-right: 2rem;
+  flex-shrink: 0;
 }
 
 .app-logo span { color: var(--accent); }
@@ -76,7 +79,8 @@ body {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 1.1rem 1.25rem;
+  padding: 0 1.25rem;
+  height: var(--header-h);
   font-size: 13px;
   font-weight: 500;
   color: var(--text-3);
@@ -145,8 +149,10 @@ body {
   border-radius: var(--radius);
   padding: 1.25rem;
   position: sticky;
-  top: 57px;
+  top: calc(var(--header-h) + 1rem);
   box-shadow: var(--shadow);
+  max-height: calc(100vh - var(--header-h) - 2rem);
+  overflow-y: auto;
 }
 
 .filters-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
@@ -195,12 +201,15 @@ body {
 .search-input::placeholder { color: var(--text-3); }
 .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
 
-.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: visible; box-shadow: var(--shadow); }
+.table-scroll { overflow-x: auto; border-radius: 0 0 var(--radius) var(--radius); }
 
 .table-toolbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  padding: 0 16px; height: var(--toolbar-h);
+  border-bottom: 1px solid var(--border);
   background: var(--surface-2); gap: 1rem;
+  flex-shrink: 0;
 }
 
 .active-filters { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
@@ -229,7 +238,7 @@ body {
 .icon-btn.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead { position: sticky; top: 57px; z-index: 2; }
+thead { position: sticky; top: var(--header-h); z-index: 3; }
 th {
   padding: 10px 14px; text-align: left;
   font-size: 11px; font-weight: 600; text-transform: uppercase;
@@ -540,7 +549,7 @@ input[type=text]::placeholder { color: var(--text-3); }
             </button>
           </div>
         </div>
-        <div style="overflow-x:auto">
+        <div class="table-scroll">
           <table>
             <thead>
               <tr>
@@ -765,10 +774,10 @@ input[type=text]::placeholder { color: var(--text-3); }
 // DATA
 // ═══════════════════════════════════════
 const DATA = [
-  {product:"Cosequin Homepage",brand:"Cosequin",animal:"—",category:"—",pageType:"Homepage",url:"https://www.cosequin.com"},
-  {product:"Proviable Homepage",brand:"Proviable",animal:"—",category:"—",pageType:"Homepage",url:"https://www.proviable.com"},
-  {product:"Dasuquin Homepage",brand:"Dasuquin",animal:"—",category:"—",pageType:"Homepage",url:"https://www.dasuquin.com"},
-  {product:"Champion Campaign",brand:"Cosequin",animal:"Dogs, Cats, Horses",category:"—",pageType:"Landing Page",url:"https://www.cosequin.com/champions-trust"},
+  {product:"Cosequin Homepage",brand:"Cosequin",animal:"—",category:"General",pageType:"Homepage",url:"https://www.cosequin.com"},
+  {product:"Proviable Homepage",brand:"Proviable",animal:"—",category:"General",pageType:"Homepage",url:"https://www.proviable.com"},
+  {product:"Dasuquin Homepage",brand:"Dasuquin",animal:"—",category:"General",pageType:"Homepage",url:"https://www.dasuquin.com"},
+  {product:"Champion Campaign",brand:"Cosequin",animal:"Dogs, Cats, Horses",category:"General",pageType:"Landing Page",url:"https://www.cosequin.com/champions-trust"},
   {product:"Cosequin Dogs Main Page",brand:"Cosequin",animal:"Dogs",category:"Main page",pageType:"Animal General Page",url:"https://www.cosequin.com/joint-supplements/?tags=dog"},
   {product:"Cosequin Joint Health Multifunctional Soft Chews",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/multifunctional"},
   {product:"Cosequin Senior Soft Chews",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/senior"},
@@ -845,7 +854,7 @@ function buildFilters(){
   buildFG('brand-filters','brand',['Cosequin','Proviable','Dasuquin']);
   buildFG('animal-filters','animal',['Dogs','Cats','Horses']);
   buildFG('pagetype-filters','pageType',['Homepage','Animal General Page','Product Page','Landing Page']);
-  const cats=[...new Set(DATA.map(r=>r.category).filter(v=>v&&v!=='—'&&v!=='Main page'))].sort();
+  const cats=[...new Set(DATA.map(r=>r.category).filter(v=>v&&v!=='—'))].sort();
   buildFG('category-filters','category',cats);
 }
 

@@ -149,9 +149,9 @@ body {
   border-radius: var(--radius);
   padding: 1.25rem;
   position: sticky;
-  top: calc(var(--header-h) + 1rem);
+  top: calc(var(--header-h) + 1.5rem);
   box-shadow: var(--shadow);
-  max-height: calc(100vh - var(--header-h) - 2rem);
+  max-height: calc(100vh - var(--header-h) - 3rem);
   overflow-y: auto;
 }
 
@@ -201,7 +201,7 @@ body {
 .search-input::placeholder { color: var(--text-3); }
 .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
 
-.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: visible; box-shadow: var(--shadow); }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
 .table-scroll { overflow-x: auto; border-radius: 0 0 var(--radius) var(--radius); }
 
 .table-toolbar {
@@ -238,7 +238,7 @@ body {
 .icon-btn.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead { position: sticky; top: var(--header-h); z-index: 3; }
+thead { position: sticky; top: 0; z-index: 3; }
 th {
   padding: 10px 14px; text-align: left;
   font-size: 11px; font-weight: 600; text-transform: uppercase;
@@ -271,7 +271,7 @@ tr:hover td { background: #FAFAF8; }
 }
 .pt-Product\ Page { background: #E6F5EF; color: #1D9E75; }
 .pt-Homepage { background: #F3EEFF; color: #7C3AE8; }
-.pt-Animal\ General\ Page { background: #EBF2FB; color: #2563A8; }
+.pt-Category\ Page { background: #EBF2FB; color: #2563A8; }
 .pt-Landing\ Page { background: #FEF0E6; color: #C2540A; }
 
 .product-name { font-weight: 500; }
@@ -526,12 +526,12 @@ input[type=text]::placeholder { color: var(--text-3); }
       </div>
       <div class="f-divider"></div>
       <div class="filter-group">
-        <div class="filter-group-label">Page Type</div>
+        <div class="filter-group-label">Page Category</div>
         <div class="filter-options" id="pagetype-filters"></div>
       </div>
       <div class="f-divider"></div>
       <div class="filter-group">
-        <div class="filter-group-label">Category</div>
+        <div class="filter-group-label">Product Category</div>
         <div class="filter-options" id="category-filters"></div>
       </div>
     </aside>
@@ -549,15 +549,15 @@ input[type=text]::placeholder { color: var(--text-3); }
             </button>
           </div>
         </div>
-        <div class="table-scroll">
+        <div class="table-scroll" style="max-height:calc(100vh - var(--header-h) - 200px); overflow-y:auto; overflow-x:auto; border-radius: 0 0 var(--radius) var(--radius);">
           <table>
             <thead>
               <tr>
                 <th onclick="sortBy('product')">Product <span id="si-product">↕</span></th>
                 <th onclick="sortBy('brand')">Brand <span id="si-brand">↕</span></th>
                 <th onclick="sortBy('animal')">Animal <span id="si-animal">↕</span></th>
-                <th onclick="sortBy('category')">Category <span id="si-category">↕</span></th>
-                <th onclick="sortBy('pageType')">Page Type <span id="si-pageType">↕</span></th>
+                <th onclick="sortBy('category')">Product Category <span id="si-category">↕</span></th>
+                <th onclick="sortBy('pageType')">Page Category <span id="si-pageType">↕</span></th>
                 <th>URL</th>
                 <th></th>
               </tr>
@@ -590,7 +590,7 @@ input[type=text]::placeholder { color: var(--text-3); }
   <div class="step-page active" id="sp-1">
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem" id="b-filter-chips"></div>
 
-    <div class="table-wrap" style="max-height:440px;overflow-y:auto">
+    <div class="table-wrap" style="max-height:440px; overflow-y:auto; overflow-x:auto; overflow:auto;">
       <table>
         <thead>
           <tr>
@@ -598,8 +598,8 @@ input[type=text]::placeholder { color: var(--text-3); }
             <th>Product</th>
             <th>Brand</th>
             <th>Animal</th>
-            <th>Category</th>
-            <th>Page Type</th>
+            <th>Product Category</th>
+            <th>Page Category</th>
           </tr>
         </thead>
         <tbody id="picker-body"></tbody>
@@ -774,11 +774,21 @@ input[type=text]::placeholder { color: var(--text-3); }
 // DATA
 // ═══════════════════════════════════════
 const DATA = [
-  {product:"Cosequin Homepage",brand:"Cosequin",animal:"—",category:"General",pageType:"Homepage",url:"https://www.cosequin.com"},
-  {product:"Proviable Homepage",brand:"Proviable",animal:"—",category:"General",pageType:"Homepage",url:"https://www.proviable.com"},
-  {product:"Dasuquin Homepage",brand:"Dasuquin",animal:"—",category:"General",pageType:"Homepage",url:"https://www.dasuquin.com"},
-  {product:"Champion Campaign",brand:"Cosequin",animal:"Dogs, Cats, Horses",category:"General",pageType:"Landing Page",url:"https://www.cosequin.com/champions-trust"},
-  {product:"Cosequin Dogs Main Page",brand:"Cosequin",animal:"Dogs",category:"Main page",pageType:"Animal General Page",url:"https://www.cosequin.com/joint-supplements/?tags=dog"},
+const DATA = [
+  // HOMEPAGES
+  {product:"Cosequin Homepage",brand:"Cosequin",animal:"General",category:"General",pageType:"Homepage",url:"https://www.cosequin.com"},
+  {product:"Proviable Homepage",brand:"Proviable",animal:"General",category:"General",pageType:"Homepage",url:"https://www.proviable.com"},
+  {product:"Dasuquin Homepage",brand:"Dasuquin",animal:"General",category:"General",pageType:"Homepage",url:"https://www.dasuquin.com"},
+  // CATEGORY PAGES
+  {product:"Champion Campaign",brand:"Cosequin",animal:"Dogs, Cats, Horses",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/champions-trust"},
+  {product:"Cosequin Dogs Main Page",brand:"Cosequin",animal:"Dogs",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/joint-supplements/?tags=dog"},
+  {product:"Cosequin Cats Main Page",brand:"Cosequin",animal:"Cats",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/joint-supplements/?tags=cat"},
+  {product:"Cosequin Horses Main Page",brand:"Cosequin",animal:"Horses",category:"General",pageType:"Category Page",url:"https://www.cosequin.com/joint-supplements/?tags=horse"},
+  {product:"Dasuquin Dogs Main Page",brand:"Dasuquin",animal:"Dogs",category:"General",pageType:"Category Page",url:"https://www.dasuquin.com/products#dogs"},
+  {product:"Dasuquin Cats Main Page",brand:"Dasuquin",animal:"Cats",category:"General",pageType:"Category Page",url:"https://www.dasuquin.com/products#cats"},
+  {product:"Proviable Dogs Main Page",brand:"Proviable",animal:"Dogs",category:"General",pageType:"Category Page",url:"https://www.proviable.com"},
+  {product:"Proviable Cats Main Page",brand:"Proviable",animal:"Cats",category:"General",pageType:"Category Page",url:"https://www.proviable.com"},
+  // COSEQUIN DOGS — SOFT CHEW
   {product:"Cosequin Joint Health Multifunctional Soft Chews",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/multifunctional"},
   {product:"Cosequin Senior Soft Chews",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/senior"},
   {product:"Cosequin Soft Chews with MSM Plus Omega-3",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/omega-3"},
@@ -786,21 +796,23 @@ const DATA = [
   {product:"Cosequin Soft Chews with HA",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/ha"},
   {product:"Cosequin Soft Chews with MSM and Boswellia",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/boswellia"},
   {product:"Cosequin Soft Chews with Boswellia for Small Dogs",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/small-dog/soft-chew/boswellia"},
+  // COSEQUIN DOGS — CHEWABLE TABLET
   {product:"Cosequin Chewable Tablets with MSM",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/msm"},
   {product:"Cosequin Chewable Tablets with HA",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/ha"},
   {product:"Cosequin Elements Chewable Tablets",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/elements-standard"},
   {product:"Cosequin Elements with Green Lipped Mussel",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/elements-perna"},
   {product:"Cosequin DS Chewable Tablets",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/ds"},
+  // COSEQUIN DOGS — SPRINKLE CAPSULE
   {product:"Cosequin DS Capsules for Dogs",brand:"Cosequin",animal:"Dogs",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/capsule/ds"},
   {product:"Cosequin Capsules for Small Animals",brand:"Cosequin",animal:"Dogs",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/capsule/small"},
-  {product:"Cosequin Cats Main Page",brand:"Cosequin",animal:"Cats",category:"Main page",pageType:"Animal General Page",url:"https://www.cosequin.com/joint-supplements/?tags=cat"},
+  // COSEQUIN CATS
   {product:"Cosequin Maximum Strength Soft Chews for Cats",brand:"Cosequin",animal:"Cats",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/soft-chew/max"},
   {product:"Cosequin Sprinkle Capsules for Cats (Original)",brand:"Cosequin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/sprinkle-capsule/original"},
   {product:"Cosequin Senior Sprinkle Capsules for Cats",brand:"Cosequin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/sprinkle-capsule/senior"},
   {product:"Cosequin Sprinkle Capsules for Cats (Max Strength)",brand:"Cosequin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/sprinkle-capsule/max"},
   {product:"Cosequin Sprinkle Capsules with Boswellia for Cats",brand:"Cosequin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/sprinkle-capsule/boswellia"},
   {product:"Cosequin Tidbits for Cats",brand:"Cosequin",animal:"Cats",category:"Tidbits",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/tidbits"},
-  {product:"Cosequin Horses Main Page",brand:"Cosequin",animal:"Horses",category:"Main page",pageType:"Animal General Page",url:"https://www.cosequin.com/joint-supplements/?tags=horse"},
+  // COSEQUIN HORSES
   {product:"Cosequin ASU Pellets",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/asu"},
   {product:"Cosequin Optimized Pellets with MSM",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/optimized-msm"},
   {product:"Cosequin ASU Plus Pellets",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/asu-plus"},
@@ -812,34 +824,34 @@ const DATA = [
   {product:"Cosequin ASU Plus Powder",brand:"Cosequin",animal:"Horses",category:"Powder",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/powder/asu-plus"},
   {product:"Cosequin Original Powder",brand:"Cosequin",animal:"Horses",category:"Powder",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/powder/original"},
   {product:"Cosequin ASU Joint and Digestive Health Tablets",brand:"Cosequin",animal:"Horses",category:"Tablets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/tablet/functional-joint-digestive"},
-  {product:"Proviable Dogs Main Page",brand:"Proviable",animal:"Dogs",category:"Main page",pageType:"Animal General Page",url:"https://www.proviable.com"},
-  {product:"Proviable-DC Capsules for Dogs",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-dc-capsules-for-dogs"},
-  {product:"Proviable Chewable Tablets",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-chewable-tablets"},
-  {product:"Proviable Kits for Dogs",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-kits-for-dogs"},
-  {product:"Proviable-Forte Sprinkle Capsules for Dogs",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-sprinkle-capsules-for-dogs"},
-  {product:"Proviable-Forte Kits for Dogs",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-kits-for-dogs"},
-  {product:"Proviable-Forte Chewable Tablets",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-chewable-tablets"},
-  {product:"Proviable Fiber Powder",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-fiber-powder"},
-  {product:"Proviable Cats Main Page",brand:"Proviable",animal:"Cats",category:"Main page",pageType:"Animal General Page",url:"https://www.proviable.com"},
-  {product:"Proviable-DC Capsules for Cats",brand:"Proviable",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-dc-capsules-for-cats"},
-  {product:"Proviable Kits for Cats",brand:"Proviable",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-kits-for-cats"},
-  {product:"Proviable-Forte Sprinkle Capsules for Cats",brand:"Proviable",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-sprinkle-capsules-for-cats"},
-  {product:"Proviable-Forte Kits for Cats",brand:"Proviable",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-kits-for-cats"},
-  {product:"Dasuquin Dogs Main Page",brand:"Dasuquin",animal:"Dogs",category:"Main page",pageType:"Animal General Page",url:"https://www.dasuquin.com/products#dogs"},
-  {product:"Dasuquin with Omega-3s",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-omega-3s-soft-chews"},
-  {product:"Dasuquin With MSM Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews-w-msm"},
-  {product:"Dasuquin With MSM Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-chewable-tablets-w-msm"},
-  {product:"Dasuquin Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews"},
-  {product:"Dasuquin Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-chewable-tablets"},
-  {product:"Dasuquin Soft Chews for Senior Dogs",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-senior-soft-chews"},
-  {product:"Dasuquin Advanced Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-soft-chews"},
-  {product:"Dasuquin Advanced Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-chewable-tablets"},
-  {product:"Dasuquin Advanced With ESM Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-esm"},
-  {product:"Dasuquin Advanced With ESM Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-with-esm-chewable-tablets"},
-  {product:"Dasuquin Cats Main Page",brand:"Dasuquin",animal:"Cats",category:"Main page",pageType:"Animal General Page",url:"https://www.dasuquin.com/products#cats"},
-  {product:"Dasuquin Soft Chews for Cats",brand:"Dasuquin",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews-for-cats"},
-  {product:"Dasuquin Sprinkle Capsules for Cats",brand:"Dasuquin",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-sprinkle-capsules-for-cats"},
-  {product:"Dasuquin Advanced Sprinkle Capsules for Cats",brand:"Dasuquin",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-sprinkle-capsules-for-cats"},
+  // PROVIABLE DOGS
+  {product:"Proviable-DC Capsules for Dogs",brand:"Proviable",animal:"Dogs",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.proviable.com/proviable-dc-capsules-for-dogs"},
+  {product:"Proviable Chewable Tablets",brand:"Proviable",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.proviable.com/proviable-chewable-tablets"},
+  {product:"Proviable Kits for Dogs",brand:"Proviable",animal:"Dogs",category:"Kits",pageType:"Product Page",url:"https://www.proviable.com/proviable-kits-for-dogs"},
+  {product:"Proviable-Forte Sprinkle Capsules for Dogs",brand:"Proviable",animal:"Dogs",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-sprinkle-capsules-for-dogs"},
+  {product:"Proviable-Forte Kits for Dogs",brand:"Proviable",animal:"Dogs",category:"Kits",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-kits-for-dogs"},
+  {product:"Proviable-Forte Chewable Tablets",brand:"Proviable",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-chewable-tablets"},
+  {product:"Proviable Fiber Powder",brand:"Proviable",animal:"Dogs",category:"Powder",pageType:"Product Page",url:"https://www.proviable.com/proviable-fiber-powder"},
+  // PROVIABLE CATS
+  {product:"Proviable-DC Capsules for Cats",brand:"Proviable",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.proviable.com/proviable-dc-capsules-for-cats"},
+  {product:"Proviable Kits for Cats",brand:"Proviable",animal:"Cats",category:"Kits",pageType:"Product Page",url:"https://www.proviable.com/proviable-kits-for-cats"},
+  {product:"Proviable-Forte Sprinkle Capsules for Cats",brand:"Proviable",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-sprinkle-capsules-for-cats"},
+  {product:"Proviable-Forte Kits for Cats",brand:"Proviable",animal:"Cats",category:"Kits",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-kits-for-cats"},
+  // DASUQUIN DOGS
+  {product:"Dasuquin with Omega-3s",brand:"Dasuquin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-omega-3s-soft-chews"},
+  {product:"Dasuquin With MSM Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews-w-msm"},
+  {product:"Dasuquin With MSM Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-chewable-tablets-w-msm"},
+  {product:"Dasuquin Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews"},
+  {product:"Dasuquin Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-chewable-tablets"},
+  {product:"Dasuquin Soft Chews for Senior Dogs",brand:"Dasuquin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-senior-soft-chews"},
+  {product:"Dasuquin Advanced Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-soft-chews"},
+  {product:"Dasuquin Advanced Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-chewable-tablets"},
+  {product:"Dasuquin Advanced With ESM Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-esm"},
+  {product:"Dasuquin Advanced With ESM Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-with-esm-chewable-tablets"},
+  // DASUQUIN CATS
+  {product:"Dasuquin Soft Chews for Cats",brand:"Dasuquin",animal:"Cats",category:"Soft Chew",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews-for-cats"},
+  {product:"Dasuquin Sprinkle Capsules for Cats",brand:"Dasuquin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-sprinkle-capsules-for-cats"},
+  {product:"Dasuquin Advanced Sprinkle Capsules for Cats",brand:"Dasuquin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-sprinkle-capsules-for-cats"},
 ];
 
 const BRAND_DOMAINS = {Cosequin:'cosequin.com',Proviable:'proviable.com',Dasuquin:'dasuquin.com'};
@@ -852,9 +864,9 @@ let sortField=null, sortDir=1, filteredData=[...DATA];
 
 function buildFilters(){
   buildFG('brand-filters','brand',['Cosequin','Proviable','Dasuquin']);
-  buildFG('animal-filters','animal',['Dogs','Cats','Horses']);
-  buildFG('pagetype-filters','pageType',['Homepage','Animal General Page','Product Page','Landing Page']);
-  const cats=[...new Set(DATA.map(r=>r.category).filter(v=>v&&v!=='—'))].sort();
+  buildFG('animal-filters','animal',['Dogs','Cats','Horses','General']);
+  buildFG('pagetype-filters','pageType',['Homepage','Category Page','Product Page']);
+  const cats=[...new Set(DATA.map(r=>r.category).filter(v=>v))].sort();
   buildFG('category-filters','category',cats);
 }
 
@@ -1022,7 +1034,7 @@ function renderPickerTable(){
   const fc=document.getElementById('b-filter-chips');
   const brands=['Cosequin','Proviable','Dasuquin'];
   const animals=['Dogs','Cats','Horses'];
-  const pts=['Homepage','Animal General Page','Product Page','Landing Page'];
+  const pts=['Homepage','Category Page','Product Page'];
   fc.innerHTML=[
     ...brands.map(v=>`<div class="chip${pickerFilters.brand===v?' sel':''}" onclick="togglePF('brand','${v}')" style="font-size:12px;padding:4px 10px"><span class="chip-ck">✓</span>${v}</div>`),
     ...animals.map(v=>`<div class="chip${pickerFilters.animal===v?' sel':''}" onclick="togglePF('animal','${v}')" style="font-size:12px;padding:4px 10px"><span class="chip-ck">✓</span>${v}</div>`),

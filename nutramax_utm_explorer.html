@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nutramax Link & UTM Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --surface-2: #F0EEE9;
+  --border: #E2DED6;
+  --border-2: #CCC8BF;
+  --text: #1A1916;
+  --text-2: #6B6860;
+  --text-3: #9E9B94;
+  --accent: #1D9E75;
+  --accent-light: #E6F5EF;
+  --accent-dark: #0D5C42;
+  --accent-mid: #0F6E56;
+  --cosequin: #2563A8;
+  --cosequin-light: #EBF2FB;
+  --proviable: #7C3AE8;
+  --proviable-light: #F3EEFF;
+  --dasuquin: #C2540A;
+  --dasuquin-light: #FEF0E6;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.09);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── TABS ── */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.app-logo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  padding: 1rem 0;
+  border-right: 1px solid var(--border);
+  padding-right: 2rem;
+}
+
+.app-logo span { color: var(--accent); }
+
+.tabs {
+  display: flex;
+  gap: 0;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 1.1rem 1.25rem;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tab:hover { color: var(--text-2); }
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+.tab-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+
+.tab.active .tab-icon { background: var(--accent-light); }
+
+.tab-view { display: none; }
+.tab-view.active { display: block; }
+
+/* ── EXPLORER ── */
+.explorer-wrap {
+  padding: 2rem 1.5rem 4rem;
+}
+
+.page-header {
+  max-width: 1100px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.page-sub { font-size: 13px; color: var(--text-3); margin-top: 3px; }
+
+.result-count {
+  font-size: 13px;
+  color: var(--text-3);
+  font-family: 'DM Mono', monospace;
+  background: var(--surface);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.result-count span { color: var(--text); font-weight: 500; }
+
+.main { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 230px 1fr; gap: 1.5rem; align-items: start; }
+
+.filters {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  position: sticky;
+  top: 57px;
+  box-shadow: var(--shadow);
+}
+
+.filters-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.filters-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); }
+.clear-btn { font-size: 12px; color: var(--accent); cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif; font-weight: 500; padding: 0; display: none; }
+.clear-btn.visible { display: block; }
+.clear-btn:hover { color: var(--accent-dark); }
+
+.filter-group { margin-bottom: 1.25rem; }
+.filter-group:last-child { margin-bottom: 0; }
+.filter-group-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3); margin-bottom: 8px; }
+.filter-options { display: flex; flex-direction: column; gap: 2px; }
+
+.filter-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: background 0.1s; user-select: none;
+}
+.filter-option:hover { background: var(--surface-2); }
+.filter-option.active { background: var(--accent-light); }
+
+.filter-check {
+  width: 15px; height: 15px;
+  border: 1.5px solid var(--border-2); border-radius: 4px;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; background: var(--surface);
+}
+.filter-option.active .filter-check { background: var(--accent); border-color: var(--accent); }
+.filter-check svg { opacity: 0; transition: opacity 0.15s; }
+.filter-option.active .filter-check svg { opacity: 1; }
+.filter-label { font-size: 13px; color: var(--text-2); flex: 1; }
+.filter-option.active .filter-label { color: var(--accent-dark); font-weight: 500; }
+.filter-count-badge { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-3); background: var(--surface-2); padding: 1px 6px; border-radius: 10px; }
+
+.f-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+.search-wrap { position: relative; margin-bottom: 1rem; }
+.search-input {
+  width: 100%; padding: 8px 12px 8px 34px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: 'DM Sans', sans-serif;
+  background: var(--surface); color: var(--text); outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-3); }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
+
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+
+.table-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  background: var(--surface-2); gap: 1rem;
+}
+
+.active-filters { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+.active-filter-tag {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12px; padding: 3px 8px 3px 10px;
+  background: var(--accent-light); color: var(--accent-dark);
+  border-radius: 20px; border: 1px solid rgba(29,158,117,0.2); font-weight: 500;
+}
+.active-filter-tag button { background: none; border: none; cursor: pointer; color: var(--accent); line-height: 1; padding: 0; font-size: 14px; display: flex; align-items: center; }
+.no-filters-msg { font-size: 12px; color: var(--text-3); font-style: italic; }
+
+.toolbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.icon-btn {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+  padding: 6px 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; color: var(--text-2);
+  white-space: nowrap; transition: all 0.15s;
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--text); }
+.icon-btn.green { background: var(--accent); border-color: var(--accent); color: #fff; }
+.icon-btn.green:hover { background: var(--accent-mid); }
+.icon-btn.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { position: sticky; top: 57px; z-index: 2; }
+th {
+  padding: 10px 14px; text-align: left;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text-3);
+  background: var(--surface-2); border-bottom: 1px solid var(--border);
+  white-space: nowrap; cursor: pointer; user-select: none;
+}
+th:hover { color: var(--text-2); }
+th.sorted { color: var(--text); }
+td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #FAFAF8; }
+
+.brand-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 500; padding: 3px 8px;
+  border-radius: 20px; white-space: nowrap;
+}
+.brand-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.brand-Cosequin { background: var(--cosequin-light); color: var(--cosequin); }
+.brand-Cosequin .brand-dot { background: var(--cosequin); }
+.brand-Proviable { background: var(--proviable-light); color: var(--proviable); }
+.brand-Proviable .brand-dot { background: var(--proviable); }
+.brand-Dasuquin { background: var(--dasuquin-light); color: var(--dasuquin); }
+.brand-Dasuquin .brand-dot { background: var(--dasuquin); }
+
+.pt-badge {
+  display: inline-block; font-size: 11px; font-weight: 500;
+  padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+}
+.pt-Product\ Page { background: #E6F5EF; color: #1D9E75; }
+.pt-Homepage { background: #F3EEFF; color: #7C3AE8; }
+.pt-Animal\ General\ Page { background: #EBF2FB; color: #2563A8; }
+.pt-Landing\ Page { background: #FEF0E6; color: #C2540A; }
+
+.product-name { font-weight: 500; }
+.muted { color: var(--text-2); }
+
+.url-cell { max-width: 260px; }
+.url-wrap { display: flex; align-items: flex-start; gap: 3px; }
+.url-link { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); text-decoration: none; word-break: break-all; line-height: 1.4; }
+.url-link:hover { color: var(--accent-dark); text-decoration: underline; }
+.copy-url-btn {
+  background: none; border: 1px solid transparent; border-radius: 4px;
+  cursor: pointer; padding: 3px 4px; color: var(--text-3);
+  transition: all 0.15s; display: inline-flex; align-items: center; flex-shrink: 0; margin-top: 1px;
+}
+.copy-url-btn:hover { background: var(--surface-2); border-color: var(--border); color: var(--text-2); }
+.copy-url-btn.copied { color: var(--accent); border-color: var(--accent-light); background: var(--accent-light); }
+
+.build-btn {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  padding: 4px 10px; background: var(--accent-light); border: 1px solid rgba(29,158,117,0.25);
+  border-radius: 20px; cursor: pointer; color: var(--accent-dark);
+  white-space: nowrap; transition: all 0.15s;
+}
+.build-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.empty-state { text-align: center; padding: 3rem; color: var(--text-3); }
+.empty-state p:first-child { font-size: 24px; margin-bottom: 8px; }
+
+/* ── UTM BUILDER ── */
+.builder-wrap {
+  padding: 2rem 1.5rem 4rem;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.builder-header { margin-bottom: 2rem; }
+.builder-header h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.builder-header p { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+
+/* Steps */
+.steps-bar { display: flex; gap: 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.step-tab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 18px; font-size: 13px; font-weight: 500;
+  color: var(--text-3); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all 0.15s; user-select: none;
+}
+.step-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.step-tab.done { color: var(--text-2); }
+.step-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; flex-shrink: 0; transition: all 0.2s;
+}
+.step-tab.active .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+.step-tab.done .step-num { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
+
+.step-page { display: none; }
+.step-page.active { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Selected URL banner */
+.selected-url-banner {
+  display: none;
+  align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--accent-light);
+  border: 1px solid rgba(29,158,117,0.2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+  font-size: 12px;
+}
+.selected-url-banner.show { display: flex; }
+.selected-url-banner .sub-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+.selected-url-banner .sub-product { font-weight: 600; color: var(--accent-dark); }
+.selected-url-banner .sub-url { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent-dark); opacity: 0.7; word-break: break-all; }
+.selected-url-banner .sub-change { margin-left: auto; font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+.selected-url-banner .sub-change:hover { color: var(--accent-dark); text-decoration: underline; }
+
+/* Param card */
+.param-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.param-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.param-card-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.param-card-title .param-key { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-3); font-weight: 400; }
+.param-live { font-size: 12px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 6px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: var(--surface-2); color: var(--text-3); }
+.param-live.set { background: var(--accent-light); color: var(--accent-dark); }
+
+/* Chips */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 6px 13px; border-radius: 20px;
+  border: 1px solid var(--border); font-size: 13px;
+  cursor: pointer; background: var(--surface); color: var(--text);
+  transition: all 0.15s; display: flex; align-items: center; gap: 5px;
+  user-select: none; white-space: nowrap;
+}
+.chip:hover { border-color: var(--border-2); background: var(--surface-2); }
+.chip.sel { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
+.chip-ck { font-size: 11px; opacity: 0; transition: opacity 0.15s; }
+.chip.sel .chip-ck { opacity: 1; }
+.chip.multi.sel { background: var(--accent-light); }
+
+.p-divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+.sub-section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); margin-bottom: 8px; }
+
+.inline-input-wrap { margin-top: 8px; display: none; }
+.inline-input-wrap.show { display: block; }
+input[type=text] {
+  width: 100%; padding: 8px 12px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 13px; font-family: 'DM Sans', sans-serif;
+  background: var(--surface); color: var(--text); outline: none;
+  transition: border-color 0.15s;
+}
+input[type=text]:focus { border-color: var(--accent); }
+input[type=text]::placeholder { color: var(--text-3); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+
+/* Live preview */
+.preview-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-top: 10px;
+}
+.preview-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); margin-bottom: 4px; }
+.preview-val { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text); word-break: break-all; line-height: 1.5; }
+.preview-val.empty { color: var(--text-3); font-style: italic; }
+.preview-row { display: flex; align-items: flex-start; gap: 6px; padding: 3px 0; }
+.preview-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+.preview-hook-tag { font-size: 10px; color: var(--text-3); min-width: 44px; flex-shrink: 0; padding-top: 1px; }
+
+/* Nav buttons */
+.nav-row { display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.btn-back { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-2); cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif; padding: 8px 0; }
+.btn-back:hover { color: var(--text); }
+.btn-next { display: flex; align-items: center; gap: 6px; padding: 9px 22px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s; }
+.btn-next:hover { background: var(--accent-mid); }
+
+/* Results */
+.result-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow-md); margin-bottom: 10px;
+}
+.result-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.result-card-hook { font-size: 12px; font-weight: 600; color: var(--text); }
+.result-card-content { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
+.result-card-body { padding: 12px 14px; }
+.result-url { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-2); word-break: break-all; line-height: 1.6; margin-bottom: 10px; }
+.result-url .utm-base { color: var(--text); }
+.result-url .utm-sep { color: var(--text-3); }
+.result-url .utm-key { color: #2563A8; }
+.result-url .utm-val { color: var(--accent-dark); }
+.result-actions { display: flex; gap: 6px; }
+
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.5rem; }
+.sum-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; }
+.sum-item-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); font-weight: 600; margin-bottom: 3px; }
+.sum-item-val { font-size: 13px; font-weight: 500; color: var(--text); word-break: break-word; }
+
+.copy-all-strip {
+  width: 100%; padding: 10px;
+  border: 1px dashed var(--border-2); border-radius: var(--radius-sm);
+  background: transparent; cursor: pointer;
+  font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--text-2);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin-top: 4px; transition: all 0.15s;
+}
+.copy-all-strip:hover { background: var(--surface); color: var(--text); border-color: var(--accent); }
+.copy-all-strip.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); border-style: solid; }
+
+.new-link-btn { display: flex; align-items: center; gap: 6px; padding: 9px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text); transition: all 0.15s; }
+.new-link-btn:hover { background: var(--surface-2); }
+
+/* Validation */
+.param-card.has-error { border-color: #E2724A; box-shadow: 0 0 0 3px rgba(226,114,74,0.12); }
+.field-error { display: none; font-size: 12px; color: #B94A24; margin-top: 8px; padding: 6px 10px; background: #FEF3EE; border: 1px solid #F5C4B0; border-radius: var(--radius-sm); align-items: center; gap: 6px; }
+.field-error.show { display: flex; }
+.field-error svg { flex-shrink: 0; }
+.btn-next:disabled { background: var(--border-2); cursor: not-allowed; opacity: 0.7; }
+.step-tab.locked { cursor: not-allowed; opacity: 0.5; }
+.step-tab.locked:hover { color: var(--text-3); }
+
+@media (max-width: 780px) {
+  .main { grid-template-columns: 1fr; }
+  .filters { position: static; }
+  .two-col { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .app-header { padding: 0 1rem; gap: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-logo">Nutramax <span>×</span> inBeat</div>
+  <nav class="tabs">
+    <div class="tab active" id="tab-explorer" onclick="switchTab('explorer')">
+      <div class="tab-icon">🔍</div>
+      Link Explorer
+    </div>
+    <div class="tab" id="tab-builder" onclick="switchTab('builder')">
+      <div class="tab-icon">⚡</div>
+      UTM Builder
+    </div>
+  </nav>
+</header>
+
+<!-- ══════════════════ EXPLORER TAB ══════════════════ -->
+<div class="tab-view active" id="view-explorer">
+<div class="explorer-wrap">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Link Explorer</div>
+      <div class="page-sub">All brand & product URLs — click "Build UTM" to add tracking parameters</div>
+    </div>
+    <div class="result-count"><span id="count">66</span> links</div>
+  </div>
+
+  <div class="main">
+    <aside class="filters">
+      <div class="filters-header">
+        <span class="filters-title">Filters</span>
+        <button class="clear-btn" id="clear-btn" onclick="clearAll()">Clear all</button>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-label">Brand</div>
+        <div class="filter-options" id="brand-filters"></div>
+      </div>
+      <div class="f-divider"></div>
+      <div class="filter-group">
+        <div class="filter-group-label">Animal</div>
+        <div class="filter-options" id="animal-filters"></div>
+      </div>
+      <div class="f-divider"></div>
+      <div class="filter-group">
+        <div class="filter-group-label">Page Type</div>
+        <div class="filter-options" id="pagetype-filters"></div>
+      </div>
+      <div class="f-divider"></div>
+      <div class="filter-group">
+        <div class="filter-group-label">Category</div>
+        <div class="filter-options" id="category-filters"></div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="active-filters" id="active-filters">
+            <span class="no-filters-msg">No filters applied — showing all links</span>
+          </div>
+          <div class="toolbar-right">
+            <button class="icon-btn" id="copy-all-btn" onclick="copyAll()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy all URLs
+            </button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="sortBy('product')">Product <span id="si-product">↕</span></th>
+                <th onclick="sortBy('brand')">Brand <span id="si-brand">↕</span></th>
+                <th onclick="sortBy('animal')">Animal <span id="si-animal">↕</span></th>
+                <th onclick="sortBy('category')">Category <span id="si-category">↕</span></th>
+                <th onclick="sortBy('pageType')">Page Type <span id="si-pageType">↕</span></th>
+                <th>URL</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════ BUILDER TAB ══════════════════ -->
+<div class="tab-view" id="view-builder">
+<div class="builder-wrap">
+  <div class="builder-header">
+    <h2>UTM Builder</h2>
+    <p>Select a URL, configure your UTM parameters, and generate tracking links.</p>
+  </div>
+
+  <!-- Steps bar -->
+  <div class="steps-bar">
+    <div class="step-tab active" id="stab-1" onclick="tryGoStep(1)"><span class="step-num">1</span>Select URL</div>
+    <div class="step-tab locked" id="stab-2" onclick="tryGoStep(2)"><span class="step-num">2</span>UTM Parameters</div>
+    <div class="step-tab locked" id="stab-3" onclick="tryGoStep(3)"><span class="step-num">3</span>Generated Links</div>
+  </div>
+
+  <!-- STEP 1: URL picker -->
+  <div class="step-page active" id="sp-1">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem" id="b-filter-chips"></div>
+
+    <div class="table-wrap" style="max-height:440px;overflow-y:auto">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30px"></th>
+            <th>Product</th>
+            <th>Brand</th>
+            <th>Animal</th>
+            <th>Category</th>
+            <th>Page Type</th>
+          </tr>
+        </thead>
+        <tbody id="picker-body"></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:1rem;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px">
+      <span style="font-size:12px;color:var(--text-3)">Or enter a custom URL:</span>
+      <input type="text" id="custom-url-input" placeholder="https://…" style="flex:1;max-width:400px" oninput="onCustomUrlChange()">
+      <span id="custom-url-err" style="font-size:12px;color:#C2540A;display:none">Must match a brand domain</span>
+    </div>
+
+    <div class="nav-row">
+      <div></div>
+      <button class="btn-next" onclick="step1Next()">Continue to UTM Params →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: UTM params -->
+  <div class="step-page" id="sp-2">
+    <div class="selected-url-banner" id="sel-banner">
+      <span class="sub-label">URL</span>
+      <div>
+        <div class="sub-product" id="sel-product-name"></div>
+        <div class="sub-url" id="sel-url-display"></div>
+      </div>
+      <span class="sub-change" onclick="tryGoStep(1)">Change</span>
+    </div>
+
+    <!-- Source -->
+    <div class="param-card">
+      <div class="param-card-header">
+        <div class="param-card-title">UTM Source <span class="param-key">utm_source</span></div>
+        <div class="param-live" id="pv-source">not set</div>
+      </div>
+      <div class="chip-row">
+        <div class="chip" onclick="pickSingle(this,'source','facebook')"><span class="chip-ck">✓</span>facebook</div>
+        <div class="chip" onclick="pickSingle(this,'source','instagram')"><span class="chip-ck">✓</span>instagram</div>
+        <div class="chip" onclick="pickSingle(this,'source','tiktok')"><span class="chip-ck">✓</span>tiktok</div>
+        <div class="chip" onclick="pickSingle(this,'source','__c')"><span class="chip-ck">✓</span>+ Custom</div>
+      </div>
+      <div class="inline-input-wrap" id="source-custom-wrap">
+        <input type="text" id="source-custom-val" placeholder="Custom source" oninput="B.source=this.value;updatePV('pv-source',this.value);buildContent();clearErr('err-source')">
+      </div>
+      <div class="field-error" id="err-source"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Please select or enter a UTM source.</div>
+    </div>
+
+    <!-- Medium -->
+    <div class="param-card">
+      <div class="param-card-header">
+        <div class="param-card-title">UTM Medium <span class="param-key">utm_medium</span></div>
+        <div class="param-live" id="pv-medium">not set</div>
+      </div>
+      <div class="chip-row">
+        <div class="chip" onclick="pickMedium(this,'Paid_Social')"><span class="chip-ck">✓</span>Paid_Social</div>
+        <div class="chip" onclick="pickMedium(this,'influencer')"><span class="chip-ck">✓</span>influencer</div>
+        <div class="chip" onclick="pickMedium(this,'Paid_Influencer')"><span class="chip-ck">✓</span>Paid_Influencer</div>
+        <div class="chip" onclick="pickMedium(this,'__c')"><span class="chip-ck">✓</span>+ Custom</div>
+      </div>
+      <div class="inline-input-wrap" id="medium-custom-wrap">
+        <input type="text" id="medium-custom-val" placeholder="Custom medium" oninput="B.medium=this.value;onMediumChange();clearErr('err-medium')">
+      </div>
+      <div class="field-error" id="err-medium"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Please select or enter a UTM medium.</div>
+    </div>
+
+    <!-- Campaign -->
+    <div class="param-card">
+      <div class="param-card-header">
+        <div class="param-card-title">UTM Campaign <span class="param-key">utm_campaign</span></div>
+        <div class="param-live" id="pv-campaign">not set</div>
+      </div>
+      <div class="sub-section-label">Campaign name</div>
+      <div class="chip-row">
+        <div class="chip" onclick="pickCampaignName(this,'Champion')"><span class="chip-ck">✓</span>Champion</div>
+        <div class="chip" onclick="pickCampaignName(this,'Vets')"><span class="chip-ck">✓</span>Vets</div>
+        <div class="chip" onclick="pickCampaignName(this,'ProviableLunch')"><span class="chip-ck">✓</span>ProviableLunch</div>
+        <div class="chip" onclick="pickCampaignName(this,'6WeeksChallenge')"><span class="chip-ck">✓</span>6WeeksChallenge</div>
+        <div class="chip" onclick="pickCampaignName(this,'__c')"><span class="chip-ck">✓</span>+ Custom</div>
+      </div>
+      <div class="inline-input-wrap" id="cname-custom-wrap">
+        <input type="text" id="cname-custom-val" placeholder="Custom campaign name" oninput="B.campaignName=this.value;buildCampaign();clearErr('err-campaign')">
+      </div>
+      <div id="funnel-section" style="display:none">
+        <div class="p-divider"></div>
+        <div class="two-col">
+          <div>
+            <div class="sub-section-label">Funnel stage</div>
+            <div class="chip-row">
+              <div class="chip" onclick="pickFunnel(this,'TOF')"><span class="chip-ck">✓</span>TOF</div>
+              <div class="chip" onclick="pickFunnel(this,'MOF')"><span class="chip-ck">✓</span>MOF</div>
+              <div class="chip" onclick="pickFunnel(this,'BOF')"><span class="chip-ck">✓</span>BOF</div>
+            </div>
+          </div>
+          <div>
+            <div class="sub-section-label">Objective</div>
+            <div class="chip-row">
+              <div class="chip" onclick="pickObj(this,'Awareness')"><span class="chip-ck">✓</span>Awareness</div>
+              <div class="chip" onclick="pickObj(this,'Consideration')"><span class="chip-ck">✓</span>Consideration</div>
+              <div class="chip" onclick="pickObj(this,'Conversion')"><span class="chip-ck">✓</span>Conversion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field-error" id="err-campaign"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="err-campaign-msg">Please select or enter a campaign name.</span></div>
+    </div>
+
+    <!-- Content -->
+    <div class="param-card">
+      <div class="param-card-header">
+        <div class="param-card-title">UTM Content <span class="param-key">utm_content</span></div>
+        <div class="param-live" id="pv-content">not set</div>
+      </div>
+      <div class="two-col" style="margin-bottom:12px">
+        <div>
+          <div class="sub-section-label">Asset type</div>
+          <div class="chip-row">
+            <div class="chip" onclick="pickContent(this,'assetType','Video')"><span class="chip-ck">✓</span>Video</div>
+            <div class="chip" onclick="pickContent(this,'assetType','Image')"><span class="chip-ck">✓</span>Image</div>
+            <div class="chip" onclick="pickContent(this,'assetType','Carousel')"><span class="chip-ck">✓</span>Carousel</div>
+            <div class="chip" onclick="pickContent(this,'assetType','__c')"><span class="chip-ck">✓</span>+ Custom</div>
+          </div>
+          <input type="text" id="assetType-cv" style="margin-top:6px;display:none" placeholder="Custom asset type" oninput="B.assetType=this.value;buildContent()">
+        </div>
+        <div id="ct-col">
+          <div class="sub-section-label">Content type</div>
+          <div class="chip-row" id="ct-chips"></div>
+          <input type="text" id="contentType-cv" style="margin-top:6px;display:none" placeholder="Custom content type" oninput="B.contentType=this.value;buildContent()">
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="sub-section-label">Creator name</div>
+        <input type="text" id="creator-name" placeholder="FirstnameLastname" oninput="buildContent()" style="max-width:280px">
+      </div>
+      <div>
+        <div class="sub-section-label">Hook / identifier <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-3)">— select multiple to generate multiple links</span></div>
+        <div class="chip-row" id="hook-chips"></div>
+        <input type="text" id="hook-cv" style="margin-top:6px;display:none" placeholder="Custom hook" oninput="buildContent()">
+      </div>
+      <div class="preview-box" style="margin-top:12px">
+        <div class="preview-label">utm_content preview</div>
+        <div id="content-preview"></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goStep(1)">← Back</button>
+      <button class="btn-next" onclick="step2Next()">Generate Links →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Results -->
+  <div class="step-page" id="sp-3">
+    <div class="summary-grid" id="summary-grid"></div>
+    <div id="result-cards"></div>
+    <button class="copy-all-strip" id="copy-all-strip" onclick="copyAllGenerated()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span id="copy-all-strip-lbl">Copy all links</span>
+    </button>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goStep(2)">← Edit UTM params</button>
+      <button class="new-link-btn" onclick="resetBuilder()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        New link
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+const DATA = [
+  {product:"Cosequin Homepage",brand:"Cosequin",animal:"—",category:"—",pageType:"Homepage",url:"https://www.cosequin.com"},
+  {product:"Proviable Homepage",brand:"Proviable",animal:"—",category:"—",pageType:"Homepage",url:"https://www.proviable.com"},
+  {product:"Dasuquin Homepage",brand:"Dasuquin",animal:"—",category:"—",pageType:"Homepage",url:"https://www.dasuquin.com"},
+  {product:"Champion Campaign",brand:"Cosequin",animal:"Dogs, Cats, Horses",category:"—",pageType:"Landing Page",url:"https://www.cosequin.com/champions-trust"},
+  {product:"Cosequin Dogs Main Page",brand:"Cosequin",animal:"Dogs",category:"Main page",pageType:"Animal General Page",url:"https://www.cosequin.com/joint-supplements/?tags=dog"},
+  {product:"Cosequin Joint Health Multifunctional Soft Chews",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/multifunctional"},
+  {product:"Cosequin Senior Soft Chews",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/senior"},
+  {product:"Cosequin Soft Chews with MSM Plus Omega-3",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/omega-3"},
+  {product:"Cosequin Soft Chews for Small Dogs (MSM + Omega-3)",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/small-dog/soft-chew/omega-3"},
+  {product:"Cosequin Soft Chews with HA",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/ha"},
+  {product:"Cosequin Soft Chews with MSM and Boswellia",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/soft-chew/boswellia"},
+  {product:"Cosequin Soft Chews with Boswellia for Small Dogs",brand:"Cosequin",animal:"Dogs",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/small-dog/soft-chew/boswellia"},
+  {product:"Cosequin Chewable Tablets with MSM",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/msm"},
+  {product:"Cosequin Chewable Tablets with HA",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/ha"},
+  {product:"Cosequin Elements Chewable Tablets",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/elements-standard"},
+  {product:"Cosequin Elements with Green Lipped Mussel",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/elements-perna"},
+  {product:"Cosequin DS Chewable Tablets",brand:"Cosequin",animal:"Dogs",category:"Chewable Tablet",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/chewable-tablet/ds"},
+  {product:"Cosequin DS Capsules for Dogs",brand:"Cosequin",animal:"Dogs",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/capsule/ds"},
+  {product:"Cosequin Capsules for Small Animals",brand:"Cosequin",animal:"Dogs",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/dog/capsule/small"},
+  {product:"Cosequin Cats Main Page",brand:"Cosequin",animal:"Cats",category:"Main page",pageType:"Animal General Page",url:"https://www.cosequin.com/joint-supplements/?tags=cat"},
+  {product:"Cosequin Maximum Strength Soft Chews for Cats",brand:"Cosequin",animal:"Cats",category:"Soft Chew",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/soft-chew/max"},
+  {product:"Cosequin Sprinkle Capsules for Cats (Original)",brand:"Cosequin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/sprinkle-capsule/original"},
+  {product:"Cosequin Senior Sprinkle Capsules for Cats",brand:"Cosequin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/sprinkle-capsule/senior"},
+  {product:"Cosequin Sprinkle Capsules for Cats (Max Strength)",brand:"Cosequin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/sprinkle-capsule/max"},
+  {product:"Cosequin Sprinkle Capsules with Boswellia for Cats",brand:"Cosequin",animal:"Cats",category:"Sprinkle Capsule",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/sprinkle-capsule/boswellia"},
+  {product:"Cosequin Tidbits for Cats",brand:"Cosequin",animal:"Cats",category:"Tidbits",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/cat/tidbits"},
+  {product:"Cosequin Horses Main Page",brand:"Cosequin",animal:"Horses",category:"Main page",pageType:"Animal General Page",url:"https://www.cosequin.com/joint-supplements/?tags=horse"},
+  {product:"Cosequin ASU Pellets",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/asu"},
+  {product:"Cosequin Optimized Pellets with MSM",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/optimized-msm"},
+  {product:"Cosequin ASU Plus Pellets",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/asu-plus"},
+  {product:"Cosequin Original Pellets",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/original"},
+  {product:"Cosequin ASU Joint and Hoof Pellets",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/asu-joint-hoof"},
+  {product:"Cosequin ASU Balance Pellets",brand:"Cosequin",animal:"Horses",category:"Pellets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/pellets/balance"},
+  {product:"Cosequin ASU Powder",brand:"Cosequin",animal:"Horses",category:"Powder",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/powder/asu"},
+  {product:"Cosequin Optimized Powder with MSM",brand:"Cosequin",animal:"Horses",category:"Powder",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/powder/msm-optimized"},
+  {product:"Cosequin ASU Plus Powder",brand:"Cosequin",animal:"Horses",category:"Powder",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/powder/asu-plus"},
+  {product:"Cosequin Original Powder",brand:"Cosequin",animal:"Horses",category:"Powder",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/powder/original"},
+  {product:"Cosequin ASU Joint and Digestive Health Tablets",brand:"Cosequin",animal:"Horses",category:"Tablets",pageType:"Product Page",url:"https://www.cosequin.com/joint-supplement/horse/tablet/functional-joint-digestive"},
+  {product:"Proviable Dogs Main Page",brand:"Proviable",animal:"Dogs",category:"Main page",pageType:"Animal General Page",url:"https://www.proviable.com"},
+  {product:"Proviable-DC Capsules for Dogs",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-dc-capsules-for-dogs"},
+  {product:"Proviable Chewable Tablets",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-chewable-tablets"},
+  {product:"Proviable Kits for Dogs",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-kits-for-dogs"},
+  {product:"Proviable-Forte Sprinkle Capsules for Dogs",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-sprinkle-capsules-for-dogs"},
+  {product:"Proviable-Forte Kits for Dogs",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-kits-for-dogs"},
+  {product:"Proviable-Forte Chewable Tablets",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-chewable-tablets"},
+  {product:"Proviable Fiber Powder",brand:"Proviable",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-fiber-powder"},
+  {product:"Proviable Cats Main Page",brand:"Proviable",animal:"Cats",category:"Main page",pageType:"Animal General Page",url:"https://www.proviable.com"},
+  {product:"Proviable-DC Capsules for Cats",brand:"Proviable",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-dc-capsules-for-cats"},
+  {product:"Proviable Kits for Cats",brand:"Proviable",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-kits-for-cats"},
+  {product:"Proviable-Forte Sprinkle Capsules for Cats",brand:"Proviable",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-sprinkle-capsules-for-cats"},
+  {product:"Proviable-Forte Kits for Cats",brand:"Proviable",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.proviable.com/proviable-forte-kits-for-cats"},
+  {product:"Dasuquin Dogs Main Page",brand:"Dasuquin",animal:"Dogs",category:"Main page",pageType:"Animal General Page",url:"https://www.dasuquin.com/products#dogs"},
+  {product:"Dasuquin with Omega-3s",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-omega-3s-soft-chews"},
+  {product:"Dasuquin With MSM Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews-w-msm"},
+  {product:"Dasuquin With MSM Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-chewable-tablets-w-msm"},
+  {product:"Dasuquin Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews"},
+  {product:"Dasuquin Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-chewable-tablets"},
+  {product:"Dasuquin Soft Chews for Senior Dogs",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-senior-soft-chews"},
+  {product:"Dasuquin Advanced Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-soft-chews"},
+  {product:"Dasuquin Advanced Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-chewable-tablets"},
+  {product:"Dasuquin Advanced With ESM Soft Chews",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-esm"},
+  {product:"Dasuquin Advanced With ESM Chewable Tablets",brand:"Dasuquin",animal:"Dogs",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-with-esm-chewable-tablets"},
+  {product:"Dasuquin Cats Main Page",brand:"Dasuquin",animal:"Cats",category:"Main page",pageType:"Animal General Page",url:"https://www.dasuquin.com/products#cats"},
+  {product:"Dasuquin Soft Chews for Cats",brand:"Dasuquin",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-soft-chews-for-cats"},
+  {product:"Dasuquin Sprinkle Capsules for Cats",brand:"Dasuquin",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-sprinkle-capsules-for-cats"},
+  {product:"Dasuquin Advanced Sprinkle Capsules for Cats",brand:"Dasuquin",animal:"Cats",category:"—",pageType:"Product Page",url:"https://www.dasuquin.com/product/dasuquin-advanced-sprinkle-capsules-for-cats"},
+];
+
+const BRAND_DOMAINS = {Cosequin:'cosequin.com',Proviable:'proviable.com',Dasuquin:'dasuquin.com'};
+
+// ═══════════════════════════════════════
+// EXPLORER LOGIC
+// ═══════════════════════════════════════
+let activeFilters = {brand:new Set(),animal:new Set(),pageType:new Set(),category:new Set()};
+let sortField=null, sortDir=1, filteredData=[...DATA];
+
+function buildFilters(){
+  buildFG('brand-filters','brand',['Cosequin','Proviable','Dasuquin']);
+  buildFG('animal-filters','animal',['Dogs','Cats','Horses']);
+  buildFG('pagetype-filters','pageType',['Homepage','Animal General Page','Product Page','Landing Page']);
+  const cats=[...new Set(DATA.map(r=>r.category).filter(v=>v&&v!=='—'&&v!=='Main page'))].sort();
+  buildFG('category-filters','category',cats);
+}
+
+function buildFG(id,field,vals){
+  const el=document.getElementById(id); el.innerHTML='';
+  vals.forEach(val=>{
+    const cnt=DATA.filter(r=>r[field]===val||(field==='animal'&&r.animal.includes(val))).length;
+    const d=document.createElement('div');
+    d.className='filter-option'; d.dataset.field=field; d.dataset.val=val;
+    d.onclick=()=>toggleFilter(field,val,d);
+    d.innerHTML=`<div class="filter-check"><svg width="9" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="filter-label">${val}</span><span class="filter-count-badge">${cnt}</span>`;
+    el.appendChild(d);
+  });
+}
+
+function toggleFilter(field,val,el){
+  activeFilters[field].has(val)?activeFilters[field].delete(val):activeFilters[field].add(val);
+  el.classList.toggle('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  filteredData=DATA.filter(r=>{
+    if(activeFilters.brand.size&&!activeFilters.brand.has(r.brand))return false;
+    if(activeFilters.animal.size&&![...activeFilters.animal].some(a=>r.animal.includes(a)))return false;
+    if(activeFilters.pageType.size&&!activeFilters.pageType.has(r.pageType))return false;
+    if(activeFilters.category.size&&!activeFilters.category.has(r.category))return false;
+    return true;
+  });
+  if(sortField) filteredData.sort((a,b)=>a[sortField].localeCompare(b[sortField])*sortDir);
+  renderTable(); renderActiveTags();
+  document.getElementById('count').textContent=filteredData.length;
+  const has=[...Object.values(activeFilters)].some(s=>s.size>0);
+  document.getElementById('clear-btn').classList.toggle('visible',has);
+}
+
+function renderTable(){
+  const tb=document.getElementById('table-body');
+  if(!filteredData.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty-state"><p>🔍</p><p>No results match your filters.</p></div></td></tr>`;return;}
+  tb.innerHTML=filteredData.map(r=>{
+    const bc=`brand-${r.brand}`;
+    const ptc=`pt-badge pt-${r.pageType}`;
+    const su=r.url.replace(/'/g,"\\'");
+    return `<tr>
+      <td><span class="product-name">${r.product}</span></td>
+      <td><span class="brand-badge ${bc}"><span class="brand-dot"></span>${r.brand}</span></td>
+      <td><span class="muted">${r.animal}</span></td>
+      <td><span class="muted">${r.category}</span></td>
+      <td><span class="${ptc}">${r.pageType}</span></td>
+      <td class="url-cell"><div class="url-wrap"><a class="url-link" href="${r.url}" target="_blank">${r.url}</a><button class="copy-url-btn" onclick="copyUrl(this,'${su}')" title="Copy"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></td>
+      <td><button class="build-btn" onclick="launchBuilder('${su}','${r.product.replace(/'/g,"\\'")}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Build UTM</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderActiveTags(){
+  const el=document.getElementById('active-filters');
+  const tags=[];
+  Object.entries(activeFilters).forEach(([f,vals])=>vals.forEach(v=>tags.push(`<div class="active-filter-tag">${v}<button onclick="removeFilter('${f}','${v}')">×</button></div>`)));
+  el.innerHTML=tags.length?tags.join(''):'<span class="no-filters-msg">No filters applied — showing all links</span>';
+}
+
+function removeFilter(f,v){activeFilters[f].delete(v);document.querySelectorAll(`.filter-option[data-field="${f}"][data-val="${v}"]`).forEach(e=>e.classList.remove('active'));applyFilters();}
+function clearAll(){Object.keys(activeFilters).forEach(k=>activeFilters[k].clear());document.querySelectorAll('.filter-option.active').forEach(e=>e.classList.remove('active'));applyFilters();}
+
+function sortBy(field){
+  sortField===field?sortDir*=-1:(sortField=field,sortDir=1);
+  ['product','brand','animal','category','pageType'].forEach(k=>{
+    const el=document.getElementById('si-'+k);
+    if(el)el.textContent=k===field?(sortDir===1?'↑':'↓'):'↕';
+  });
+  document.querySelectorAll('th').forEach(t=>t.classList.remove('sorted'));
+  event.currentTarget.classList.add('sorted');
+  applyFilters();
+}
+
+function copyUrl(btn,url){
+  navigator.clipboard.writeText(url).then(()=>{
+    btn.classList.add('copied');
+    btn.innerHTML=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>`;
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;},2000);
+  });
+}
+
+function copyAll(){
+  const urls=filteredData.map(r=>r.url).join('\n');
+  const btn=document.getElementById('copy-all-btn');
+  navigator.clipboard.writeText(urls).then(()=>{
+    btn.classList.add('copied');btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied ${filteredData.length}`;
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy all URLs`;},2500);
+  });
+}
+
+// ═══════════════════════════════════════
+// BUILDER LOGIC
+// ═══════════════════════════════════════
+let B={selectedUrl:null,selectedProduct:null,source:null,medium:null,campaignName:null,campaignFunnel:null,campaignObj:null,campaign:null,assetType:null,contentType:null,hooks:[],customHook:null};
+let pickerFilters={brand:null,animal:null,pageType:null};
+let builderStep=1;
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('view-'+t).classList.add('active');
+  if(t==='builder')renderPickerTable();
+}
+
+function launchBuilder(url,name){
+  B.selectedUrl=url; B.selectedProduct=name;
+  switchTab('builder');
+  setTimeout(()=>{ selectRowByUrl(url); goStep(2); },50);
+}
+
+function goStep(n){
+  document.querySelectorAll('.step-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('sp-'+n).classList.add('active');
+  ['stab-1','stab-2','stab-3'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.classList.remove('active','done','locked');
+    if(i+1===n) el.classList.add('active');
+    else if(i+1<n) el.classList.add('done');   // completed — clickable to go back
+    else el.classList.add('locked');             // future step — not clickable
+  });
+  builderStep=n;
+  if(n===2){
+    document.getElementById('sel-product-name').textContent=B.selectedProduct||'Custom URL';
+    document.getElementById('sel-url-display').textContent=B.selectedUrl||'';
+    document.getElementById('sel-banner').classList.toggle('show',!!B.selectedUrl);
+    initMediumDeps();
+  }
+  if(n===3)renderResults();
+}
+
+function tryGoStep(n){
+  // Only allow navigating to already-completed steps (done state), not active or locked
+  const tab=document.getElementById('stab-'+n);
+  if(!tab||tab.classList.contains('locked')||tab.classList.contains('active'))return;
+  goStep(n);
+}
+
+function renderPickerTable(){
+  const rows=DATA.filter(r=>{
+    if(pickerFilters.brand&&r.brand!==pickerFilters.brand)return false;
+    if(pickerFilters.animal&&!r.animal.includes(pickerFilters.animal))return false;
+    if(pickerFilters.pageType&&r.pageType!==pickerFilters.pageType)return false;
+    return true;
+  });
+  const tb=document.getElementById('picker-body');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty-state" style="padding:2rem"><p>🔍</p><p>No results</p></div></td></tr>`;return;}
+  tb.innerHTML=rows.map(r=>{
+    const sel=B.selectedUrl===r.url;
+    const ptc=`pt-badge pt-${r.pageType}`;
+    return `<tr style="cursor:pointer${sel?';background:var(--accent-light)':''}" onclick="selectRow('${r.url.replace(/'/g,"\\'")}','${r.product.replace(/'/g,"\\'")}',this)">
+      <td style="text-align:center"><div style="width:16px;height:16px;border-radius:50%;border:2px solid ${sel?'var(--accent)':'var(--border-2)'};background:${sel?'var(--accent)':'transparent'};display:inline-flex;align-items:center;justify-content:center">${sel?'<svg width="8" height="8" viewBox="0 0 10 10" fill="white"><circle cx="5" cy="5" r="3"/></svg>':''}</div></td>
+      <td><span class="product-name" style="font-size:13px">${r.product}</span></td>
+      <td><span class="brand-badge brand-${r.brand}"><span class="brand-dot"></span>${r.brand}</span></td>
+      <td><span class="muted" style="font-size:13px">${r.animal}</span></td>
+      <td><span class="muted" style="font-size:13px">${r.category}</span></td>
+      <td><span class="${ptc}">${r.pageType}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Filter chips
+  const fc=document.getElementById('b-filter-chips');
+  const brands=['Cosequin','Proviable','Dasuquin'];
+  const animals=['Dogs','Cats','Horses'];
+  const pts=['Homepage','Animal General Page','Product Page','Landing Page'];
+  fc.innerHTML=[
+    ...brands.map(v=>`<div class="chip${pickerFilters.brand===v?' sel':''}" onclick="togglePF('brand','${v}')" style="font-size:12px;padding:4px 10px"><span class="chip-ck">✓</span>${v}</div>`),
+    ...animals.map(v=>`<div class="chip${pickerFilters.animal===v?' sel':''}" onclick="togglePF('animal','${v}')" style="font-size:12px;padding:4px 10px"><span class="chip-ck">✓</span>${v}</div>`),
+    ...pts.map(v=>`<div class="chip${pickerFilters.pageType===v?' sel':''}" onclick="togglePF('pageType','${v}')" style="font-size:12px;padding:4px 10px"><span class="chip-ck">✓</span>${v}</div>`)
+  ].join('');
+}
+
+function togglePF(field,val){
+  pickerFilters[field]=pickerFilters[field]===val?null:val;
+  renderPickerTable();
+}
+
+function selectRow(url,name,tr){
+  B.selectedUrl=url; B.selectedProduct=name;
+  document.querySelectorAll('#picker-body tr').forEach(r=>r.style.background='');
+  tr.style.background='var(--accent-light)';
+  // Clear error
+  const tw=document.querySelector('#sp-1 .table-wrap');
+  if(tw){tw.style.borderColor='';tw.style.boxShadow='';}
+  const err=document.getElementById('picker-err');
+  if(err)err.classList.remove('show');
+  renderPickerTable();
+}
+
+function selectRowByUrl(url){
+  B.selectedUrl=url;
+  const row=DATA.find(r=>r.url===url);
+  if(row)B.selectedProduct=row.product;
+}
+
+function onCustomUrlChange(){
+  const val=document.getElementById('custom-url-input').value.trim();
+  const err=document.getElementById('custom-url-err');
+  if(!val){err.style.display='none';return;}
+  const valid=Object.values(BRAND_DOMAINS).some(d=>val.includes(d));
+  err.style.display=valid?'none':'inline';
+  if(valid){
+    B.selectedUrl=val;B.selectedProduct='Custom URL';
+    // Clear picker error
+    const tw=document.querySelector('#sp-1 .table-wrap');
+    if(tw){tw.style.borderColor='';tw.style.boxShadow='';}
+    const pe=document.getElementById('picker-err');
+    if(pe)pe.classList.remove('show');
+    // deselect table rows
+    document.querySelectorAll('#picker-body tr').forEach(r=>r.style.background='');
+    renderPickerTable();
+  }
+}
+
+function step1Next(){
+  if(!B.selectedUrl){
+    // Highlight the picker table
+    const tw=document.querySelector('#sp-1 .table-wrap');
+    if(tw){tw.style.borderColor='#E2724A';tw.style.boxShadow='0 0 0 3px rgba(226,114,74,0.12)';}
+    let err=document.getElementById('picker-err');
+    if(!err){
+      err=document.createElement('div');err.id='picker-err';
+      err.className='field-error show';
+      err.style.marginTop='8px';
+      err.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Please select a product URL from the table, or enter a custom URL below.`;
+      document.querySelector('#sp-1 .table-wrap').after(err);
+    } else {
+      err.classList.add('show');
+    }
+    return;
+  }
+  // Clear error if any
+  const tw=document.querySelector('#sp-1 .table-wrap');
+  if(tw){tw.style.borderColor='';tw.style.boxShadow='';}
+  const err=document.getElementById('picker-err');
+  if(err)err.classList.remove('show');
+  goStep(2);
+}
+
+function getSource(){return B.source||document.getElementById('source-custom-val')?.value.trim()||null;}
+function getMedium(){return B.medium||document.getElementById('medium-custom-val')?.value.trim()||null;}
+
+function initMediumDeps(){
+  // Init CT chips and hook chips based on current medium
+  updateCTChips();updateHookChips();
+  buildContent();buildCampaign();
+}
+
+function pickSingle(el,param,val){
+  el.closest('.chip-row').querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  const wrap=document.getElementById(param+'-custom-wrap');
+  if(val==='__c'){
+    wrap.classList.add('show');
+    B[param]=null;
+    // focus the input
+    const inp=document.getElementById(param+'-custom-val');
+    if(inp)setTimeout(()=>inp.focus(),50);
+  } else {
+    wrap.classList.remove('show');
+    // clear any custom input value so it doesn't interfere
+    const inp=document.getElementById(param+'-custom-val');
+    if(inp)inp.value='';
+    B[param]=val;
+    updatePV('pv-'+param,val);
+  }
+  clearErr('err-'+param);
+}
+
+function pickMedium(el,val){
+  el.closest('.chip-row').querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  const wrap=document.getElementById('medium-custom-wrap');
+  if(val==='__c'){
+    wrap.classList.add('show');
+    B.medium=null;
+    setTimeout(()=>document.getElementById('medium-custom-val')?.focus(),50);
+  } else {
+    wrap.classList.remove('show');
+    const inp=document.getElementById('medium-custom-val');
+    if(inp)inp.value='';
+    B.medium=val;
+    updatePV('pv-medium',val);
+  }
+  clearErr('err-medium');
+  onMediumChange();
+}
+
+function onMediumChange(){
+  const med=getMedium();
+  updatePV('pv-medium',med);
+  const isPaid=med==='Paid_Social'||med==='Paid_Influencer';
+  document.getElementById('funnel-section').style.display=isPaid?'block':'none';
+  updateCTChips();updateHookChips();
+  buildContent();buildCampaign();
+}
+
+function updateCTChips(){
+  const med=getMedium();
+  const isInfluencer=med==='influencer';
+  const isPaidInf=med==='Paid_Influencer';
+  const ctc=document.getElementById('ct-chips'); ctc.innerHTML='';
+  const types=isInfluencer?['Influencer']:['UGC','Broll','Mashup','Influencer'];
+  types.forEach(t=>{
+    const d=document.createElement('div');d.className='chip'+(isInfluencer&&t==='Influencer'?' sel':'');
+    d.innerHTML=`<span class="chip-ck">✓</span>${t}`;
+    d.onclick=()=>{ctc.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));d.classList.add('sel');B.contentType=t;buildContent();};
+    ctc.appendChild(d);
+  });
+  const cc=document.createElement('div');cc.className='chip';cc.innerHTML=`<span class="chip-ck">✓</span>+ Custom`;
+  cc.onclick=()=>{ctc.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));cc.classList.add('sel');document.getElementById('contentType-cv').style.display='block';B.contentType=null;};
+  ctc.appendChild(cc);
+  if(isInfluencer)B.contentType='Influencer';
+  else B.contentType=null;
+  document.getElementById('contentType-cv').style.display='none';
+}
+
+function updateHookChips(){
+  const med=getMedium();
+  const isPaid=med==='Paid_Social'||med==='Paid_Influencer';
+  const isPaidInf=med==='Paid_Influencer';
+  const hc=document.getElementById('hook-chips'); hc.innerHTML='';
+  const hooks=['Hook1','Hook2','Hook3'];
+  if(!isPaid){hooks.push('Bio','Story');}
+  if(isPaidInf){hooks.push('Spark');}
+  B.hooks=[];
+  hooks.forEach(h=>{
+    const d=document.createElement('div');d.className='chip multi';
+    d.innerHTML=`<span class="chip-ck">✓</span>${h}`;
+    d.onclick=()=>{
+      const idx=B.hooks.indexOf(h);
+      if(idx>=0){B.hooks.splice(idx,1);d.classList.remove('sel');}
+      else{B.hooks.push(h);d.classList.add('sel');}
+      buildContent();
+    };
+    hc.appendChild(d);
+  });
+  const cc=document.createElement('div');cc.className='chip multi';cc.innerHTML=`<span class="chip-ck">✓</span>+ Custom`;
+  cc.onclick=()=>{
+    cc.classList.toggle('sel');
+    document.getElementById('hook-cv').style.display=cc.classList.contains('sel')?'block':'none';
+    buildContent();
+  };
+  hc.appendChild(cc);
+  document.getElementById('hook-cv').style.display='none';
+}
+
+function pickCampaignName(el,val){
+  el.closest('.chip-row').querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  const wrap=document.getElementById('cname-custom-wrap');
+  if(val==='__c'){
+    wrap.classList.add('show');
+    B.campaignName=null;
+    setTimeout(()=>document.getElementById('cname-custom-val')?.focus(),50);
+  } else {
+    wrap.classList.remove('show');
+    const inp=document.getElementById('cname-custom-val');
+    if(inp)inp.value='';
+    B.campaignName=val;
+  }
+  clearErr('err-campaign');
+  buildCampaign();
+}
+
+function pickFunnel(el,val){el.closest('.chip-row').querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');B.campaignFunnel=val;clearErr('err-campaign');buildCampaign();}
+function pickObj(el,val){el.closest('.chip-row').querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');B.campaignObj=val;clearErr('err-campaign');buildCampaign();}
+
+function buildCampaign(){
+  if(document.getElementById('cname-custom-wrap').classList.contains('show'))
+    B.campaignName=document.getElementById('cname-custom-val').value.trim()||null;
+  const med=getMedium()||'';
+  const isPaid=med==='Paid_Social'||med==='Paid_Influencer';
+  let v=B.campaignName||'';
+  if(isPaid&&B.campaignFunnel&&B.campaignObj)v+=`_${B.campaignFunnel}_${B.campaignObj}`;
+  updatePV('pv-campaign',v||null);B.campaign=v||null;
+}
+
+function pickContent(el,field,val){
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  const cv=document.getElementById(field+'-cv');
+  if(val==='__c'){cv.style.display='block';B[field]=null;}
+  else{cv.style.display='none';B[field]=val;}
+  buildContent();
+}
+
+function buildContent(){
+  const a=B.assetType||document.getElementById('assetType-cv')?.value.trim()||'';
+  const c=B.contentType||document.getElementById('contentType-cv')?.value.trim()||'';
+  const cr=document.getElementById('creator-name')?.value.trim().replace(/\s+/g,'')||'';
+  const ch=document.getElementById('hook-cv')?.value.trim();
+  const hooks=[...B.hooks];
+  if(ch&&document.getElementById('hook-cv').style.display!=='none')hooks.push(ch);
+  const list=hooks.length?hooks:[''];
+  const prev=document.getElementById('content-preview');
+  let first='';
+  prev.innerHTML=list.map((h,i)=>{
+    const parts=['iB',a,c,cr,h].filter(Boolean);
+    const v=parts.length>1?parts.join('_'):'';
+    if(i===0)first=v;
+    return `<div class="preview-row"><span class="preview-hook-tag">${list.length>1?h:''}</span><span class="preview-val${v?'':' empty'}">${v||'Fill options above…'}</span></div>`;
+  }).join('');
+  updatePV('pv-content',list.length>1?`${list.length} values`:first||null);
+  B.content=first;B.hooksList=list;
+}
+
+function updatePV(id,val){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=val||'not set';el.classList.toggle('set',!!val);
+}
+
+function showErr(id, msg){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(msg){const span=el.querySelector('span');if(span)span.textContent=msg;}
+  el.classList.add('show');
+  // highlight parent card
+  const card=el.closest('.param-card');
+  if(card)card.classList.add('has-error');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function clearErr(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.remove('show');
+  const card=el.closest('.param-card');
+  if(card)card.classList.remove('has-error');
+}
+
+function step2Next(){
+  let valid=true;
+
+  // Source
+  const src=getSource();
+  if(!src){showErr('err-source');valid=false;}
+  else clearErr('err-source');
+
+  // Medium
+  const med=getMedium();
+  if(!med){showErr('err-medium');valid=false;}
+  else clearErr('err-medium');
+
+  // Campaign name (required)
+  const cn=B.campaignName||document.getElementById('cname-custom-val')?.value.trim();
+  if(!cn){
+    showErr('err-campaign','Please select or enter a campaign name.');
+    valid=false;
+  } else {
+    // If paid, also need funnel + objective
+    const isPaid=med==='Paid_Social'||med==='Paid_Influencer';
+    if(isPaid&&!B.campaignFunnel){
+      showErr('err-campaign','Please select a funnel stage.');
+      valid=false;
+    } else if(isPaid&&!B.campaignObj){
+      showErr('err-campaign','Please select an objective.');
+      valid=false;
+    } else {
+      clearErr('err-campaign');
+    }
+  }
+
+  if(!valid) return;
+
+  buildCampaign();buildContent();goStep(3);
+}
+
+function buildFinalUrls(){
+  const base=B.selectedUrl||'';
+  const src=getSource()||'';
+  const med=getMedium()||'';
+  const a=B.assetType||document.getElementById('assetType-cv')?.value.trim()||'';
+  const c=B.contentType||document.getElementById('contentType-cv')?.value.trim()||'';
+  const cr=document.getElementById('creator-name')?.value.trim().replace(/\s+/g,'')||'';
+  const ch=document.getElementById('hook-cv')?.value.trim();
+  const hooks=[...B.hooks];
+  if(ch&&document.getElementById('hook-cv').style.display!=='none')hooks.push(ch);
+  const list=hooks.length?hooks:[''];
+  return list.map(h=>{
+    const parts=['iB',a,c,cr,h].filter(Boolean);
+    const cv=parts.length>1?parts.join('_'):'';
+    const params={utm_source:src,utm_medium:med,utm_campaign:B.campaign,utm_content:cv};
+    const qs=Object.entries(params).filter(([,v])=>v).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
+    const sep=base.includes('?')?'&':'?';
+    const full=base+(qs?sep+qs:'');
+    return{hook:h,content:cv,url:full,base,qs};
+  });
+}
+
+function colorizeUrl(base,qs){
+  if(!qs)return`<span class="utm-base">${base}</span>`;
+  const sep=base.includes('?')?'&':'?';
+  const pairs=qs.split('&').map(p=>{
+    const [k,v]=p.split('=');
+    return`<span class="utm-key">${k}</span>=<span class="utm-val">${decodeURIComponent(v)}</span>`;
+  }).join('<span class="utm-sep">&</span>');
+  return`<span class="utm-base">${base}</span><span class="utm-sep">${sep}</span>${pairs}`;
+}
+
+function renderResults(){
+  const urls=buildFinalUrls();
+  const src=getSource()||'—';
+  const med=getMedium()||'—';
+
+  const sg=document.getElementById('summary-grid');
+  const items=[
+    {l:'Product',v:B.selectedProduct||'—'},
+    {l:'URL',v:B.selectedUrl||'—'},
+    {l:'Source',v:src},{l:'Medium',v:med},
+    {l:'Campaign',v:B.campaign||'—'},
+    {l:'Links generated',v:urls.length+''}
+  ];
+  sg.innerHTML=items.map(({l,v})=>`<div class="sum-item"><div class="sum-item-label">${l}</div><div class="sum-item-val">${v}</div></div>`).join('');
+
+  const rc=document.getElementById('result-cards');
+  rc.innerHTML=urls.map(({hook,content,url,base,qs})=>{
+    const su=url.replace(/'/g,"\\'");
+    return `<div class="result-card">
+      <div class="result-card-header">
+        <div class="result-card-hook">${urls.length>1?hook:'Generated Link'}</div>
+        ${content?`<div class="result-card-content">${content}</div>`:''}
+      </div>
+      <div class="result-card-body">
+        <div class="result-url">${colorizeUrl(base,qs)}</div>
+        <div class="result-actions">
+          <button class="icon-btn" onclick="copyGenUrl(this,'${su}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+          <a class="icon-btn" href="${url}" target="_blank" rel="noopener" style="text-decoration:none">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open
+          </a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyGenUrl(btn,url){
+  navigator.clipboard.writeText(url).then(()=>{
+    btn.classList.add('copied');btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied`;
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;},2000);
+  });
+}
+
+function copyAllGenerated(){
+  const urls=buildFinalUrls().map(r=>r.url).join('\n');
+  const btn=document.getElementById('copy-all-strip');
+  const lbl=document.getElementById('copy-all-strip-lbl');
+  navigator.clipboard.writeText(urls).then(()=>{
+    btn.classList.add('copied');lbl.textContent=`Copied ${buildFinalUrls().length} link${buildFinalUrls().length>1?'s':''}!`;
+    setTimeout(()=>{btn.classList.remove('copied');lbl.textContent='Copy all links';},2500);
+  });
+}
+
+function resetBuilder(){
+  B={selectedUrl:null,selectedProduct:null,source:null,medium:null,campaignName:null,campaignFunnel:null,campaignObj:null,campaign:null,assetType:null,contentType:null,hooks:[],customHook:null};
+  document.querySelectorAll('#view-builder .chip').forEach(c=>c.classList.remove('sel'));
+  document.querySelectorAll('#view-builder input[type=text]').forEach(i=>i.value='');  document.querySelectorAll('.inline-input-wrap').forEach(w=>w.classList.remove('show'));
+  ['pv-source','pv-medium','pv-campaign','pv-content'].forEach(id=>updatePV(id,null));
+  document.getElementById('hook-cv').style.display='none';
+  document.getElementById('assetType-cv').style.display='none';
+  document.getElementById('contentType-cv').style.display='none';
+  document.getElementById('funnel-section').style.display='none';
+  document.getElementById('content-preview').innerHTML='';
+  document.getElementById('custom-url-input').value='';
+  document.getElementById('custom-url-err').style.display='none';
+  // Clear all validation errors
+  ['err-source','err-medium','err-campaign'].forEach(id=>clearErr(id));
+  const tw=document.querySelector('#sp-1 .table-wrap');
+  if(tw){tw.style.borderColor='';tw.style.boxShadow='';}
+  const pe=document.getElementById('picker-err');
+  if(pe)pe.classList.remove('show');
+  document.querySelectorAll('.param-card').forEach(c=>c.classList.remove('has-error'));
+  pickerFilters={brand:null,animal:null,pageType:null};
+  builderStep=1;
+  goStep(1);
+  renderPickerTable();
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+buildFilters();
+applyFilters();
+renderPickerTable();
+</script>
+</body>
+</html>
